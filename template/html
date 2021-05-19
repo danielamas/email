@@ -1,0 +1,8 @@
+<html>
+    <body>
+        <p>Olá,<br>
+        Email enviado por $name com texto simples e com html<br>
+        <a href="https://docs.python.org/3/">Python Documentation</a> 
+        </p>
+    </body>
+</html>

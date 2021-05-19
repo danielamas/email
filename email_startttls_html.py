@@ -10,9 +10,16 @@ def parse_template_to_string(path, args) -> str:
         src = Template(file.read())
         return src.substitute(args)
 
+def is_there_xlsx_files(path) -> bool:
+    if path :
+        for filename in os.listdir(path):
+            if filename and filename.endswith(".xlsx"):
+                return True
+    return False
+
 
 def zip_files(path, file_name):
-    if path:
+    if path and is_there_xlsx_files(path):
         with zipfile.ZipFile(os.path.join(path, file_name), 'w') as file:
             for filename in os.listdir(path):
                 if filename and filename.endswith(".xlsx"):
@@ -32,13 +39,22 @@ def attach_files(message, path):
                     )
                     message.attach(part)
 
+def attach_process(message):
+    dir_path = os.path.dirname(__file__)
+    # dir_path = f'C:{os.sep}tmp'
+    zip_file_name = 'sheets.zip'
+    zip_files(dir_path, zip_file_name)
+    if os.path.isfile(os.path.join(dir_path, zip_file_name)):
+        attach_files(message, dir_path)
+
+
 def main():
     smtp_server = "smtp.gmail.com"
     port = 587
-    sender_email = "x@gmail.com"
-    receiver_email = "x@gmail.com"
-    other_receiver_email = "x@gmail.com"
-    password = ""
+    sender_email = "feniciaresidencia@gmail.com"
+    receiver_email = "feniciaresidencia@gmail.com"
+    other_receiver_email = "feniciaresidencia@gmail.com"
+    password = "uga2buga"
 
     message = MIMEMultipart("alternative")
     message["Subject"] = "Teste Multipart"
@@ -51,13 +67,7 @@ def main():
         html_msg = parse_template_to_string(os.path.join(os.path.dirname(__file__), f'template{os.sep}html'), args={"name": "Daniel"})
         message.attach(MIMEText(text_msg, "plain"))
         message.attach(MIMEText(html_msg, "html"))
-
-        path = os.path.dirname(__file__)
-        # path = f'C:{os.sep}tmp'
-        zip_file_name = 'sheets.zip'
-        zip_files(path, zip_file_name)
-        attach_files(message, path)
-
+        attach_process(message)
         context = ssl.create_default_context()
         server = smtplib.SMTP(smtp_server,port)
         server.starttls(context=context)
